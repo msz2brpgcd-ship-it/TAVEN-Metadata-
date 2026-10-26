@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>TAVEN Metadata Studio</title>
+<style>
+:root{--bg:#e8f0ff;--card:#fff;--tx:#1e2340;--mut:#6b7392;--bd:#d6def5;--ac:#4f46e5;--ac2:#7c3aed;--in:#f6f8ff;--rd:#ef4444;--ok:#16a34a}
+[data-theme=dark]{--bg:#0b1230;--card:#131c45;--tx:#e6ebff;--mut:#9aa6d6;--bd:#2a3670;--in:#0d1538}
+*{box-sizing:border-box}html,body{margin:0}
+body{font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--tx);padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);overflow-x:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+input,select,textarea{width:100%;min-height:44px;padding:9px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--in);font-size:16px}
+textarea{resize:vertical;min-height:80px}
+button{min-height:44px;padding:8px 14px;border:1px solid var(--bd);border-radius:10px;background:var(--card);cursor:pointer}
+button.pri{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;border:0}
+button.dan{background:var(--rd);color:#fff;border:0}
+:focus-visible{outline:3px solid var(--ac2);outline-offset:2px}
+label{display:block;font-weight:600;margin:10px 0 4px}
+.top{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;padding:12px 14px;background:linear-gradient(135deg,#1e2a78,#4f46e5 60%,#7c3aed);color:#fff}
+.logo{font-size:26px;font-weight:800;letter-spacing:.04em}
+.top small{display:block;opacity:.85}
+.top .ctl{margin-left:auto;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.top label{display:flex;align-items:center;gap:6px;margin:0;font-weight:500}
+.top input{width:auto;min-height:0}
+.top button{background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.35)}
+.top button.dan{background:var(--rd)}
+.app{display:grid;gap:14px;padding:14px;max-width:1500px;margin:0 auto}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+@media(min-width:1100px){.app{grid-template-columns:minmax(300px,1fr) minmax(380px,1.25fr) minmax(320px,1fr);align-items:start}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;box-shadow:0 4px 16px rgba(60,70,160,.1);min-width:0}
+.card h2{margin:0 0 6px;font-size:17px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{flex:1 1 120px}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+.sw{position:relative}
+#q{padding-right:44px}
+#clr{position:absolute;right:2px;top:2px;width:40px;min-height:40px;border:0;background:none}
+#list{max-height:40dvh;overflow-y:auto;border:1px solid var(--bd);border-radius:10px;margin-top:6px;background:var(--card);overscroll-behavior:contain}
+#list[hidden]{display:none}
+.opt{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--bd)}
+.opt .id{color:var(--mut);font-size:12px;overflow-wrap:anywhere;text-align:right}
+.opt.act{background:rgba(79,70,229,.18)}.opt.cur{font-weight:700}
+mark{background:#fde68a;color:inherit;border-radius:3px}
+.bar{height:12px;border-radius:8px;background:var(--in);border:1px solid var(--bd);overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#22c55e,#4ade80)}
+.nav{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.scene{perspective:700px;height:230px;display:grid;place-items:center;touch-action:none;cursor:grab;border-radius:12px;background:radial-gradient(circle at 50% 40%,#3b4cc0,#101a4a);overflow:hidden}
+.cube{width:110px;height:110px;position:relative;transform-style:preserve-3d}
+.face{position:absolute;inset:0;border:1px solid rgba(0,0,0,.3);background-color:var(--c,#888);background-image:conic-gradient(rgba(0,0,0,.14) 25%,transparent 0 50%,rgba(0,0,0,.14) 0 75%,transparent 0);background-size:22px 22px}
+.f1{transform:translateZ(55px)}.f2{transform:rotateY(180deg) translateZ(55px);filter:brightness(.7)}.f3{transform:rotateY(90deg) translateZ(55px);filter:brightness(.85)}.f4{transform:rotateY(-90deg) translateZ(55px);filter:brightness(.6)}.f5{transform:rotateX(90deg) translateZ(55px);filter:brightness(1.2)}.f6{transform:rotateX(-90deg) translateZ(55px);filter:brightness(.5)}
+#card{border-radius:12px;padding:14px;border:1px solid var(--bd);background:var(--in);overflow-wrap:anywhere}
+#card h3{margin:0}#card .d{white-space:pre-wrap;margin:8px 0}#card ul{margin:4px 0;padding-left:20px}
+#cmd{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;min-height:90px;word-break:break-all;white-space:pre-wrap;overflow:auto;max-height:200px;background:var(--in);border:1px solid var(--bd);border-radius:10px;padding:10px}
+.pal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.pal button{min-height:0;aspect-ratio:1;padding:0;border-radius:8px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}.tabs button{flex:1 1 auto;min-height:40px}.tabs .on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.ens{list-style:none;padding:0;margin:8px 0}.ens li{display:flex;gap:8px;align-items:center;margin-bottom:6px}.ens input{width:80px}.ens span{flex:1}
+#json{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;min-height:170px;white-space:pre;overflow:auto}
+.st{font-size:13px;margin:6px 0}.ok{color:var(--ok)}.bad{color:var(--rd)}.mut{color:var(--mut);font-size:12px}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom));max-width:92vw;padding:10px 16px;border-radius:12px;background:#111a44;color:#fff;box-shadow:0 6px 20px rgba(0,0,0,.35);z-index:50;pointer-events:none}
+#toast[hidden]{display:none}#toast.bad{background:var(--rd);color:#fff}
+dialog{width:min(560px,94vw);max-height:90dvh;overflow:auto;border:1px solid var(--bd);border-radius:14px;background:var(--card);color:var(--tx)}
+.sv{display:flex;gap:8px;align-items:center;margin:8px 0}.sv span{flex:1;overflow-wrap:anywhere}.sv button{flex:none}
+</style>
+</head>
+<body>
+<header class="top">
+ <div><div class="logo">TAVEN <span style="font-weight:400">Metadata Studio</span></div><small>Инструмент настройки кастомных предметов для MultiCraft / Luanti</small></div>
+ <div class="ctl">
+  <label><input type="checkbox" id="tgRanks" checked> Ранги инструментов</label>
+  <label><input type="checkbox" id="tgHints" checked> Подсказки</label>
+  <button id="theme" aria-label="Сменить тему">Тема</button>
+  <button id="reset" class="dan">Сброс</button>
+ </div>
+</header>
+<main class="app">
+ <div class="col">
+  <section class="card" aria-labelledby="h1">
+   <h2 id="h1">Основная информация</h2>
+   <label for="q">ID предмета / Поиск</label>
+   <div class="sw"><input id="q" class="mono" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="mod:item_name" role="combobox" aria-expanded="false" aria-controls="list"><button id="clr" aria-label="Очистить">✕</button></div>
+   <div id="list" role="listbox" hidden></div>
+   <div class="mut" id="cnt">&nbsp;</div>
+   <label for="num">Количество</label><input id="num" type="number" min="1" max="65535" step="1" inputmode="numeric">
+   <label for="wear">Износ (Wear) <span class="mut">/ 65535</span></label><input id="wear" type="number" min="0" max="65535" step="1" inputmode="numeric">
+   <div class="st" id="durTx"></div><div class="bar"><i id="durBar"></i></div>
+  </section>
+  <section class="card"><h2>Настройки метаданных</h2>
+   <div class="nav">
+    <button data-go="sTool">Характеристики инструмента</button><button data-go="desc">Описание</button>
+    <button data-go="short">Краткое описание</button><button data-go="sColor">Цвет предмета</button>
+    <button data-go="sEnch">Зачарование</button><button data-go="sJson">Кастом</button>
+   </div>
+  </section>
+ </div>
+
+ <div class="col">
+  <section class="card"><h2>3D просмотр</h2>
+   <div class="scene" id="scene" aria-label="Куб предмета, вращайте перетаскиванием"><div class="cube" id="cube"><i class="face f1"></i><i class="face f2"></i><i class="face f3"></i><i class="face f4"></i><i class="face f5"></i><i class="face f6"></i></div></div>
+   <div class="row" style="margin-top:8px"><span class="mut">CSS-модель, процедурный узор — не игровая текстура</span><button id="camReset" style="flex:0 0 auto">Сброс камеры</button></div>
+  </section>
+  <section class="card"><h2>Карточка предмета</h2><div id="card"></div></section>
+  <section class="card"><h2>Сгенерированная команда</h2>
+   <div id="cmd" tabindex="0" aria-live="polite"></div>
+   <div class="row" style="margin-top:8px"><button id="copy" class="pri">Копировать</button><button id="share">Поделиться</button><button id="imp">Импорт</button><button id="save">Сохранить</button><button id="saved">Сохранённые команды</button></div>
+  </section>
+  <section class="card" id="sColor"><h2>Палитра цвета (35)</h2>
+   <div class="row"><div><label for="tgt">Красить</label><select id="tgt"><option value="color">Цвет текста</option><option value="bg">Цвет фона</option></select></div>
+    <div><label for="hex">HEX (#RGB / #RRGGBB)</label><input id="hex" class="mono" maxlength="7" placeholder="#6b7280"></div></div>
+   <div class="st bad" id="hexErr"></div>
+   <div class="pal" id="pal" style="margin:8px 0"></div>
+   <div class="row"><button id="hexCopy">Копировать HEX</button><button id="colClr">Убрать цвет</button></div>
+  </section>
+ </div>
+
+ <div class="col">
+  <section class="card" id="sTool"><h2>Окно инструмента</h2>
+   <div class="tabs" id="tabs" role="tablist"></div><div id="toolForm"></div>
+   <div class="row" style="margin-top:10px"><button id="tReset" class="dan">Сбросить эту вкладку</button><button id="tOk" class="pri">Подтвердить</button></div>
+  </section>
+  <section class="card"><h2>Окно описания</h2>
+   <label for="desc">Описание предмета</label><textarea id="desc"></textarea>
+   <label for="short">Краткое описание</label><textarea id="short" style="min-height:60px"></textarea>
+   <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="hide" style="width:auto;min-height:0"> Скрыть цветовые коды в предпросмотре</label>
+  </section>
+  <section class="card" id="sEnch"><h2>Окно зачарования</h2>
+   <div class="row"><div><label for="eT">Тип</label><select id="eT"></select></div><div><label for="eL">Уровень</label><select id="eL"></select></div><div><label for="eM">Или вручную</label><input id="eM" type="number" min="1" max="255" inputmode="numeric"></div></div>
+   <button id="eAdd" class="pri" style="width:100%;margin-top:8px">Добавить зачарование</button>
+   <ul class="ens" id="eList"></ul>
+   <button id="eClr" class="dan" style="width:100%">Удалить всё</button>
+  </section>
+  <section class="card" id="sJson"><h2>Окно кастома (JSON)</h2>
+   <label for="json" class="mut">Метаданные — можно править вручную</label><textarea id="json" spellcheck="false"></textarea>
+   <div class="st" id="jSt"></div>
+   <div class="row"><button id="jApply" class="pri" hidden>Применить JSON</button><button id="jRev" hidden>Отменить правки</button></div>
+  </section>
+ </div>
+</main>
+<div id="toast" role="status" hidden></div>
+<dialog id="dlg"></dialog>
+
+<script>
+(()=>{
+"use strict";
+const $=i=>document.getElementById(i);
+const RAW=`beach_biome:palm_leaves bees:honeycomb_block bluestone_stickyblocks:slimeblock charoit:block charoit:stone_with_charoit concrete:cement concrete:concrete
+default:acacia_leaves default:acacia_tree default:acacia_wood default:birch_leaves default:birch_tree default:birch_wood default:blueberry_bush_leaves default:blueberry_bush_leaves_with_berries
+default:brick default:brick_color default:brick_dark default:brick_light default:brick_snow default:bush_leaves default:cactus default:clay default:coalblock default:cobble default:diamondblock
+default:dirt default:dirt_with_dry_grass default:dirt_with_grass default:dirt_with_snow default:emeraldblock default:glass default:glowstone default:goldblock default:gravel default:ice
+default:jungleleaves default:jungletree default:junglewood default:mossycobble default:packedice default:pine_bush_needles default:pine_needles default:pine_tree default:pine_wood
+default:quartz_block default:quartz_chiseled default:quartz_ore default:quartz_pillar default:redsand default:redsandstone default:redsandstonecarved default:redsandstonesmooth default:rubyblock
+default:sand default:sandstone default:sandstonecarved default:sandstonesmooth default:snowblock default:steelblock default:stone default:stone_with_bluestone default:stone_with_coal
+default:stone_with_diamond default:stone_with_emerald default:stone_with_gold default:stone_with_iron default:stonebrick default:stonebrickcarved default:stonebrickcracked default:stonebrickmossy
+default:tree default:wood farming:straw farming_addons:melon_fruit farming_addons:melon_fruit_golden farming_plants:pumpkin_fruit mobs_animals:cheeseblock
+pink_biome:cherry_blossom_leaves pink_biome:cherry_blossom_tree pink_biome:cherry_blossom_wood pink_biome:dirt_with_pink_grass pink_biome:pink_bush_leaves sponge:sponge
+stripped_wood:acacia stripped_wood:apple stripped_wood:birch stripped_wood:cherry_blossom stripped_wood:junglewood stripped_wood:pine wool:white
+glue slime nametag diamond ruby gold brass_ingot cooked_meat stick shears white_dye green_dye blue_dye cyan_dye light_green_dye pink_dye yellow_dye bucket string sunflower_head coal
+underwater_mask saw cocoa raw_meat bread candycane gingerbread_cookie egg fried_egg gold_bar raw_pork cooked_pig cooked_steak raw_chicken bat_wings flying_wings soft_falling_wings grass
+autom_glass simple_energy_crystal star`;
+const ITEMS=RAW.trim().split(/\s+/).map(id=>({id,name:id.split(':').pop().replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()),block:id.includes(':')}));
+const ENCH={sharpness:['Острота',5],unbreaking:['Прочность',3],efficiency:['Эффективность',5],fortune:['Удача',3],silk_touch:['Шёлковое касание',1],knockback:['Отбрасывание',2],curse_of_vanishing:['Проклятие исчезновения',1],looting:['Добыча',3],power:['Сила',5],punch:['Удар',2],infinity:['Бесконечность',1]};
+const TABS={weapon:'Оружие',crack:'Дробление',chop:'Рубка',crumb:'Рыхление',cut:'Резка',other:'Другое'};
+const GEN=[['max','Макс. уровень','3'],['uses','Доступные использования','30'],['t1','Время LV1','1.0'],['t2','Время LV2','2.0'],['t3','Время LV3','3.0']];
+const FIELDS={weapon:[['dmg','Урон','7'],['spd','Скорость атаки','0.9'],['uses','Доступные использования','20']],crack:GEN,chop:GEN,crumb:GEN,cut:GEN,other:[['dug','Использования (Dug)','1024'],['drop','Макс. уровень дропа','2'],['range','Дальность','4'],['light','Уровень света','0']]};
+const LS='taven_saved';
+const D=()=>({id:'default:stone',count:1,wear:0,desc:'',short:'',color:'',bg:'',ench:[],tool:{},custom:{},hints:true,ranks:true,hide:false});
+let s=D(),tab='weapon',dirty=false,hi=-1,shown=[],rx=-25,ry=35,tt;
+
+/* ---------- utils ---------- */
+const hc=id=>{let h=0;for(const c of id)h=(h*31+c.charCodeAt(0))>>>0;return`hsl(${h%360} 45% 50%)`};
+const rom=n=>{if(n>20)return String(n);let r='';for(const[v,c]of[[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']])while(n>=v){r+=c;n-=v}return r};
+const normHex=v=>{const m=/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(v.trim());if(!m)return null;let h=m[1].toLowerCase();if(h.length===3)h=[...h].map(c=>c+c).join('');return'#'+h};
+const hsl=(h,sat,l)=>{l/=100;const a=sat*Math.min(l,1-l)/100,f=n=>{const k=(n+h/30)%12,c=l-a*Math.max(Math.min(k-3,9-k,1),-1);return Math.round(255*c).toString(16).padStart(2,'0')};return'#'+f(0)+f(8)+f(4)};
+function toast(t,bad){const e=$('toast');e.textContent=t;e.className=bad?'bad':'';e.hidden=false;clearTimeout(tt);tt=setTimeout(()=>e.hidden=true,2200)}
+function setV(id,v){const e=$(id);if(e!==document.activeElement&&e.value!==String(v))e.value=v}
+function hl(text,q){const f=document.createDocumentFragment(),i=q?text.toLowerCase().indexOf(q):-1;if(i<0){f.append(text);return f}const m=document.createElement('mark');m.textContent=text.slice(i,i+q.length);f.append(text.slice(0,i),m,text.slice(i+q.length));return f}
+
+/* ---------- metadata & command ---------- */
+function meta(){const m={};if(s.desc)m.description=s.desc;if(s.short)m.short_description=s.short;if(s.color)m.color=s.color;if(s.bg)m.bgcolor=s.bg;
+ if(s.ench.length){m.enchants={};s.ench.forEach(e=>m.enchants[e.k]=e.l)}
+ const tc={};for(const k in s.tool)if(Object.keys(s.tool[k]).length)tc[k]=s.tool[k];if(Object.keys(tc).length)m.tool_capabilities=tc;
+ return Object.assign(m,s.custom)}
+function cmd(){const j=JSON.stringify(meta());return`giveme ${s.id} ${s.count} ${s.wear} ${j==='{}'?'""':"'"+j.replace(/'/g,'\\u0027')+"'"}`}
+function fromMeta(p){
+ if(!p||typeof p!=='object'||Array.isArray(p))throw Error('Нужен JSON-объект');
+ const{description,short_description,color,bgcolor,enchants,tool_capabilities,...rest}=p,n={};
+ for(const[k,v,t]of[['description',description],['short_description',short_description]])if(v!==undefined&&typeof v!=='string')throw Error(k+' должно быть строкой');
+ for(const[k,v]of[['color',color],['bgcolor',bgcolor]]){if(v!==undefined&&!normHex(String(v)))throw Error(k+': неверный HEX')}
+ const en=[];if(enchants!==undefined){if(typeof enchants!=='object'||!enchants||Array.isArray(enchants))throw Error('enchants должен быть объектом');
+  for(const k in enchants){if(!ENCH[k])throw Error('Неизвестное зачарование: '+k);const l=enchants[k];if(!Number.isInteger(l)||l<1||l>255)throw Error('Уровень '+k+' должен быть 1–255')}
+  for(const k in enchants)en.push({k,l:enchants[k]})}
+ const tool={};if(tool_capabilities!==undefined){if(typeof tool_capabilities!=='object'||!tool_capabilities||Array.isArray(tool_capabilities))throw Error('tool_capabilities должен быть объектом');
+  for(const k in tool_capabilities){if(!TABS[k])throw Error('Неизвестный раздел: '+k);const o=tool_capabilities[k];if(!o||typeof o!=='object')throw Error('Раздел '+k+' — объект');for(const f in o)if(typeof o[f]!=='number'||!isFinite(o[f]))throw Error(k+'.'+f+' должно быть числом')}Object.assign(tool,tool_capabilities)}
+ return{desc:description||'',short:short_description||'',color:color?normHex(color):'',bg:bgcolor?normHex(bgcolor):'',ench:en,tool,custom:rest}}
+
+/* ---------- render ---------- */
+function render(){
+ const it=ITEMS.find(x=>x.id===s.id),name=it?it.name:s.id,pct=Math.round((1-s.wear/65535)*100);
+ setV('q',s.id);setV('num',s.count);setV('wear',s.wear);setV('desc',s.desc);setV('short',s.short);
+ $('durTx').textContent='Прочность: '+pct+'%';$('durBar').style.width=pct+'%';
+ $('hex').placeholder=(s.color||s.bg||'#6b7280');
+ // card
+ const c=$('card');c.replaceChildren();c.style.background=s.bg||'';c.style.color=s.color||'';
+ const h=document.createElement('h3');h.textContent=name;const id=document.createElement('div');id.className='mono mut';id.textContent=s.id;id.style.color='inherit';id.style.opacity='.75';c.append(h,id);
+ let d=s.desc;if(s.hide)d=d.replace(/(\x1b|\\27)\(c@[^)]*\)/g,'');
+ if(s.short){const p=document.createElement('div');p.style.fontStyle='italic';p.textContent=s.short;c.append(p)}
+ if(d){const p=document.createElement('div');p.className='d';p.textContent=d;c.append(p)}
+ if(s.ench.length){const t=document.createElement('div');t.textContent='Зачарования:';t.style.fontWeight='700';const u=document.createElement('ul');s.ench.forEach(e=>{const l=document.createElement('li');l.textContent=ENCH[e.k][0]+' '+rom(e.l);u.append(l)});c.append(t,u)}
+ const pr=document.createElement('div');pr.textContent='Прочность: '+pct+'%';const b=document.createElement('div');b.className='bar';b.innerHTML='<i></i>';b.firstChild.style.width=pct+'%';c.append(pr,b);
+ if(s.hints){const u=document.createElement('ul');const add=t=>{const l=document.createElement('li');l.textContent=t;u.append(l)};
+  add('Тип: '+(it?(it.block?'блок':'предмет'):'пользовательский ID'));add('Количество: '+s.count);
+  if(s.ranks)for(const k in s.tool){const o=s.tool[k];if(Object.keys(o).length)add(TABS[k]+': '+Object.entries(o).map(e=>e[0]+'='+e[1]).join(', '))}
+  c.append(u)}
+ // cube
+ const cb=$('cube');cb.style.setProperty('--c',s.color||hc(s.id));cb.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg)`+(it&&!it.block?' scale3d(1,1,.12)':'');
+ // command & json
+ $('cmd').textContent=cmd();
+ if(!dirty){$('json').value=JSON.stringify(meta(),null,2);jState()}
+ // ench list
+ const el=$('eList');el.replaceChildren();s.ench.forEach((e,i)=>{const li=document.createElement('li'),sp=document.createElement('span'),n=document.createElement('input'),x=document.createElement('button');
+  sp.textContent=ENCH[e.k][0]+' ('+e.k+')';n.type='number';n.min=1;n.max=255;n.value=e.l;n.setAttribute('aria-label','Уровень '+e.k);
+  n.onchange=()=>{const v=+n.value;if(Number.isInteger(v)&&v>=1&&v<=255)e.l=v;else toast('Уровень 1–255',1);render()};
+  x.textContent='✕';x.setAttribute('aria-label','Удалить '+e.k);x.onclick=()=>{s.ench.splice(i,1);render()};li.append(sp,n,x);el.append(li)});
+}
+function jState(){const t=$('json').value,st=$('jSt');try{JSON.parse(t);st.textContent='JSON валиден';st.className='st ok';$('jApply').hidden=!dirty;$('jRev').hidden=!dirty}catch(e){st.textContent='Ошибка: '+e.message;st.className='st bad';$('jApply').hidden=true;$('jRev').hidden=!dirty}}
+
+/* ---------- search ---------- */
+function filter(){const q=$('q').value.trim().toLowerCase();shown=ITEMS.filter(x=>!q||x.id.includes(q)||x.name.toLowerCase().includes(q));hi=Math.max(0,shown.findIndex(x=>x.id===s.id));if(q&&q!==s.id)hi=0;
+ const l=$('list');l.replaceChildren();shown.forEach((x,i)=>{const o=document.createElement('div');o.className='opt'+(i===hi?' act':'')+(x.id===s.id?' cur':'');o.setAttribute('role','option');
+  const a=document.createElement('span');a.append(hl(x.name,q));const b=document.createElement('span');b.className='id mono';b.append(hl(x.id,q));o.append(a,b);
+  o.onpointerdown=e=>{e.preventDefault();pick(x.id)};l.append(o)});
+ if(!shown.length){const o=document.createElement('div');o.className='opt';o.textContent='Ничего не найдено';l.append(o)}
+ l.hidden=false;$('q').setAttribute('aria-expanded','true');$('cnt').textContent=`Показано ${shown.length} из ${ITEMS.length}`;
+ const a=l.querySelector('.act');if(a)a.scrollIntoView({block:'nearest'})}
+function closeList(){$('list').hidden=true;$('q').setAttribute('aria-expanded','false')}
+function pick(id){s.id=id;closeList();$('q').blur();render()}
+$('q').addEventListener('input',filter);$('q').addEventListener('focus',filter);$('q').addEventListener('blur',()=>{closeList();setV('q',s.id)});
+$('q').addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();if(!shown.length)return;hi=(hi+(e.key==='ArrowDown'?1:-1)+shown.length)%shown.length;[...$('list').children].forEach((o,i)=>o.classList.toggle('act',i===hi));$('list').children[hi].scrollIntoView({block:'nearest'})}
+ else if(e.key==='Enter'){e.preventDefault();const v=$('q').value.trim();if(shown[hi]&&!$('list').hidden)pick(shown[hi].id);else if(/^[\w:.\-]+$/.test(v))pick(v)}
+ else if(e.key==='Escape')closeList()});
+$('clr').onclick=()=>{$('q').value='';$('q').focus();filter()};
+
+/* ---------- basic fields ---------- */
+function intField(id,key,min,max){const e=$(id);e.addEventListener('input',()=>{const v=Number(e.value);if(e.value!==''&&Number.isInteger(v)&&v>=min&&v<=max){s[key]=v;e.style.borderColor='';render()}else e.style.borderColor='var(--rd)'});
+ e.addEventListener('change',()=>{let v=Math.round(Number(e.value));if(!isFinite(v)){v=min;toast('Введите целое число',1)}v=Math.min(max,Math.max(min,v));s[key]=v;e.value=v;e.style.borderColor='';render()})}
+intField('num','count',1,65535);intField('wear','wear',0,65535);
+$('desc').oninput=e=>{s.desc=e.target.value;render()};$('short').oninput=e=>{s.short=e.target.value;render()};
+$('hide').onchange=e=>{s.hide=e.target.checked;render()};$('tgHints').onchange=e=>{s.hints=e.target.checked;render()};$('tgRanks').onchange=e=>{s.ranks=e.target.checked;render()};
+$('theme').onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'':'dark'};
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const t=$(b.dataset.go);t.scrollIntoView({behavior:'smooth',block:'center'});if(/^(desc|short)$/.test(t.id))t.focus({preventScroll:true})});
+$('reset').onclick=()=>{if(!confirm('Сбросить все данные к значениям по умолчанию?'))return;s=D();dirty=false;tab='weapon';$('tgHints').checked=$('tgRanks').checked=true;$('hide').checked=false;$('hex').value='';$('hexErr').textContent='';buildTool();render();toast('Все настройки сброшены')};
+
+/* ---------- tool tabs ---------- */
+function buildTabs(){const t=$('tabs');t.replaceChildren();for(const k in TABS){const b=document.createElement('button');b.textContent=TABS[k];b.setAttribute('role','tab');b.setAttribute('aria-selected',k===tab);if(k===tab)b.className='on';b.onclick=()=>{tab=k;buildTool()};t.append(b)}}
+function buildTool(){buildTabs();const f=$('toolForm');f.replaceChildren();const cur=s.tool[tab]||{};
+ FIELDS[tab].forEach(([k,l,ph])=>{const lb=document.createElement('label');lb.htmlFor='tf_'+k;lb.textContent=l;const i=document.createElement('input');i.id='tf_'+k;i.inputMode='decimal';i.placeholder='например: '+ph;i.value=cur[k]!==undefined?cur[k]:'';f.append(lb,i)})}
+$('tReset').onclick=()=>{delete s.tool[tab];buildTool();render();toast('Вкладка «'+TABS[tab]+'» сброшена')};
+$('tOk').onclick=()=>{const o={};for(const[k,l]of FIELDS[tab]){const i=$('tf_'+k),v=i.value.trim().replace(',','.');if(v==='')continue;const n=Number(v);if(!isFinite(n)||n<0){i.focus();toast(l+': нужно число ≥ 0',1);return}o[k]=n}
+ if(Object.keys(o).length)s.tool[tab]=o;else delete s.tool[tab];render();toast('Сохранено: '+TABS[tab])};
+
+/* ---------- palette ---------- */
+const PAL=[];for(const l of[88,72,56,40,26])for(const h of[0,28,50,140,190,220,280])PAL.push(hsl(h,75,l));
+PAL.forEach(c=>{const b=document.createElement('button');b.style.background=c;b.setAttribute('aria-label','Цвет '+c);b.onclick=()=>setColor(c);$('pal').append(b)});
+function setColor(v){const h=normHex(v);if(!h){$('hexErr').textContent='Неверный HEX. Примеры: #fff, #6b7280';return false}$('hexErr').textContent='';s[$('tgt').value]=h;$('hex').value=h;render();return true}
+$('hex').oninput=e=>{const v=e.target.value;if(v.trim()==='')$('hexErr').textContent='';else if(normHex(v))setColor(v);else $('hexErr').textContent='Неверный HEX. Примеры: #fff, #6b7280'};
+$('tgt').onchange=()=>{$('hex').value=s[$('tgt').value]||'';$('hexErr').textContent=''};
+$('colClr').onclick=()=>{s[$('tgt').value]='';$('hex').value='';render()};
+$('hexCopy').onclick=async()=>{const v=s[$('tgt').value];if(!v)return toast('Цвет не выбран',1);toast(await copy(v)?'HEX скопирован!':'Не удалось скопировать',!await Promise.resolve(true)&&0)};
+
+/* ---------- enchants ---------- */
+const eT=$('eT'),eL=$('eL');for(const k in ENCH){const o=document.createElement('option');o.value=k;o.textContent=ENCH[k][0]+' ('+k+')';eT.append(o)}
+function fillLv(){eL.replaceChildren();for(let i=1;i<=ENCH[eT.value][1];i++){const o=document.createElement('option');o.value=i;o.textContent=rom(i);eL.append(o)}}
+eT.onchange=fillLv;fillLv();
+$('eAdd').onclick=()=>{const k=eT.value,m=$('eM').value.trim(),l=m!==''?Number(m):Number(eL.value);
+ if(!Number.isInteger(l)||l<1||l>255)return toast('Уровень: целое число 1–255',1);
+ if(s.ench.some(e=>e.k===k))return toast('Это зачарование уже добавлено — измените уровень в списке',1);
+ s.ench.push({k,l});$('eM').value='';render()};
+$('eClr').onclick=()=>{s.ench=[];render()};
+
+/* ---------- JSON editor ---------- */
+$('json').oninput=()=>{dirty=true;jState()};
+$('jRev').onclick=()=>{dirty=false;render()};
+$('jApply').onclick=()=>{try{Object.assign(s,fromMeta(JSON.parse($('json').value)));dirty=false;buildTool();render();toast('JSON применён')}catch(e){$('jSt').textContent='Не применено: '+e.message;$('jSt').className='st bad'}};
+
+/* ---------- command actions ---------- */
+async function copy(t){try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(t);return true}}catch(e){}
+ try{const a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;opacity:0;top:0';document.body.appendChild(a);a.focus();a.select();const ok=document.execCommand('copy');a.remove();return ok}catch(e){return false}}
+$('hexCopy').onclick=async()=>{const v=s[$('tgt').value];if(!v)return toast('Цвет не выбран',1);const ok=await copy(v);toast(ok?'HEX скопирован!':'Не удалось скопировать',!ok)};
+$('copy').onclick=async()=>{const ok=await copy(cmd());toast(ok?'Команда скопирована!':'Не удалось скопировать — выделите текст вручную',!ok)};
+$('share').onclick=async()=>{if(navigator.share){try{await navigator.share({text:cmd()})}catch(e){}}else{const ok=await copy(cmd());toast(ok?'Share недоступен — команда скопирована':'Не удалось поделиться',!ok)}};
+function store(){try{return JSON.parse(localStorage.getItem(LS)||'[]')}catch(e){return null}}
+$('save').onclick=()=>{try{const a=store();if(!a)throw 0;a.unshift({name:s.id,date:new Date().toLocaleString('ru-RU'),cmd:cmd()});localStorage.setItem(LS,JSON.stringify(a.slice(0,100)));toast('Команда сохранена')}catch(e){toast('Хранилище недоступно в этом браузере',1)}};
+function dlg(title,body){const d=$('dlg');d.replaceChildren();const h=document.createElement('h2');h.textContent=title;const x=document.createElement('button');x.textContent='Закрыть';x.onclick=()=>d.close();d.append(h,body,x);d.showModal()}
+$('saved').onclick=()=>{const a=store();if(!a)return toast('Хранилище недоступно в этом браузере',1);const box=document.createElement('div');
+ if(!a.length)box.textContent='Пока ничего не сохранено. Нажмите «Сохранить».';
+ a.forEach((r,i)=>{const row=document.createElement('div');row.className='sv';const sp=document.createElement('span');sp.textContent=r.name+' — '+r.date;sp.title=r.cmd;
+  const l=document.createElement('button');l.textContent='Загрузить';l.onclick=()=>{if(importText(r.cmd))$('dlg').close()};
+  const d=document.createElement('button');d.textContent='✕';d.setAttribute('aria-label','Удалить');d.onclick=()=>{a.splice(i,1);try{localStorage.setItem(LS,JSON.stringify(a))}catch(e){}row.remove()};row.append(sp,l,d);box.append(row)});dlg('Сохранённые команды',box)};
+function importText(t){t=t.trim();try{let p,id=s.id,cnt=s.count,wr=s.wear;
+  const m=/^giveme\s+([\w:.\-]+)\s+(\d+)\s+(\d+)\s*(?:'([\s\S]*)'|"([\s\S]*)")?\s*$/.exec(t);
+  if(m){id=m[1];cnt=Math.max(1,+m[2]);wr=Math.min(65535,+m[3]);const j=(m[4]!==undefined?m[4]:m[5]||'').trim();p=j?JSON.parse(j):{}}else p=JSON.parse(t);
+  const n=fromMeta(p);s=Object.assign(D(),{hints:s.hints,ranks:s.ranks,hide:s.hide},n,{id,count:cnt,wear:wr});dirty=false;buildTool();render();toast('Импортировано');return true}
+ catch(e){toast('Импорт не удался: '+e.message,1);return false}}
+$('imp').onclick=()=>{const b=document.createElement('div'),ta=document.createElement('textarea'),go=document.createElement('button');ta.setAttribute('aria-label','Команда giveme или JSON');ta.placeholder="giveme default:stone 1 0 '{...}' или JSON метаданных";go.textContent='Импортировать';go.className='pri';go.style.margin='8px 8px 0 0';go.onclick=()=>{if(importText(ta.value))$('dlg').close()};b.append(ta,go);dlg('Импорт',b)};
+
+/* ---------- 3D drag ---------- */
+(()=>{const sc=$('scene');let dn=false,x=0,y=0;sc.onpointerdown=e=>{dn=true;x=e.clientX;y=e.clientY;sc.setPointerCapture(e.pointerId)};
+ sc.onpointermove=e=>{if(!dn)return;ry+=(e.clientX-x)*.6;rx=Math.max(-89,Math.min(89,rx-(e.clientY-y)*.6));x=e.clientX;y=e.clientY;render()};
+ sc.onpointerup=sc.onpointercancel=()=>dn=false;$('camReset').onclick=()=>{rx=-25;ry=35;render()}})();
+
+buildTool();render();
+})();
+</script>
+</body>
+</html>
